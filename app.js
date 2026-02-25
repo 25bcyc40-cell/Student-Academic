@@ -502,13 +502,25 @@ function generatePDF(studentId) {
     </div>
   `;
 
-  html2pdf().set({
-    margin: 10,
-    filename: `Report_${student.name.replace(/\s+/g, '_')}.pdf`,
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
-  }).save(element);
+  if (typeof html2pdf === 'undefined') {
+    console.error('html2pdf library not loaded');
+    alert('PDF library not ready. Please try again.');
+    return;
+  }
+
+  try {
+    html2pdf().set({
+      margin: 10,
+      filename: `Report_${student.name.replace(/\s+/g, '_')}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+    }).from(element).save();
+    console.log('PDF generated successfully');
+  } catch (e) {
+    console.error('PDF generation error:', e);
+    alert('Failed to generate PDF: ' + e.message);
+  }
 }
 
 // ==================== MAIN APP ====================
@@ -909,7 +921,13 @@ class App {
   }
 
   static generatePDF(studentId) {
-    generatePDF(studentId);
+    try {
+      console.log('Generating PDF for student:', studentId);
+      generatePDF(studentId);
+    } catch (e) {
+      console.error('PDF generation failed:', e);
+      UI.showToast('Failed to generate PDF', 'error');
+    }
   }
 
   static changePassword() {
