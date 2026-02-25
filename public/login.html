@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Login - Student Analytics</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="auth-page">
+  <main class="card glass center">
+    <h2>Admin Login</h2>
+    <form id="loginForm">
+      <label>Username<input name="username" required></label>
+      <label>Password<input name="password" type="password" required></label>
+      <button type="submit" class="btn">Login</button>
+    </form>
+    <div id="toast" class="toast"></div>
+  </main>
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const f = e.target;
+      const res = await fetch('/auth/login', { method: 'POST', headers: {'content-type':'application/json'}, body: JSON.stringify({ username: f.username.value, password: f.password.value }) });
+      const data = await res.json();
+      if (res.ok) location.href = '/'; else { document.getElementById('toast').textContent = data.error || 'Login failed'; setTimeout(()=>{document.getElementById('toast').textContent=''},3000);}    
+    });
+  </script>
+</body>
+</html>

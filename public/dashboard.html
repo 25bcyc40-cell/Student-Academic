@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Dashboard - Student Analytics</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">SPA</div>
+      <nav>
+        <a href="#" class="active">Dashboard</a>
+        <a href="#students">Students</a>
+        <a href="#subjects">Subjects</a>
+        <a href="#marks">Marks</a>
+        <a href="#reports">Reports</a>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="search">Student Performance Analytics</div>
+        <div class="profile">
+          <button id="logoutBtn" class="btn ghost">Logout</button>
+        </div>
+      </header>
+
+      <section class="content">
+        <div class="cards">
+          <div class="card stat">
+            <h4>Total Students</h4>
+            <div id="totalStudents">—</div>
+          </div>
+          <div class="card stat">
+            <h4>Average GPA</h4>
+            <div id="avgGPA">—</div>
+          </div>
+          <div class="card stat">
+            <h4>Top Performer</h4>
+            <div id="topPerf">—</div>
+          </div>
+        </div>
+
+        <div class="charts">
+          <div class="card chartcard"><canvas id="gpaLine"></canvas></div>
+          <div class="card chartcard"><canvas id="marksBar"></canvas></div>
+        </div>
+
+        <div id="students" class="card listcard">
+          <h3>Students</h3>
+          <div class="controls">
+            <button id="addStudentBtn" class="btn">Add Student</button>
+          </div>
+          <div id="studentList"></div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div id="modal" class="modal" aria-hidden="true">
+    <div class="modal-content card">
+      <button id="closeModal" class="btn ghost small">Close</button>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>

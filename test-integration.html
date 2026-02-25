@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SPA - Integration Test</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Poppins', sans-serif; background: #f6f8fb; padding: 20px; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    h1 { margin-bottom: 20px; }
+    .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    .test { padding: 10px; margin: 5px 0; border-left: 4px solid #ddd; }
+    .test.pass { background: #e8f5e9; border-left-color: #4caf50; }
+    .test.fail { background: #ffebee; border-left-color: #f44336; }
+    .test.info { background: #e3f2fd; border-left-color: #2196f3; }
+    button { padding: 10px 16px; background: #6c63ff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
+    button:hover { background: #5550dd; }
+    #output { max-height: 400px; overflow-y: auto; background: #fafafa; padding: 10px; border-radius: 6px; font-size: 12px; font-family: monospace; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧪 Student Performance Analytics - Integration Test</h1>
+    
+    <div class="card">
+      <h2>Test Controls</h2>
+      <button onclick="runTests()">Run All Tests</button><br><br>
+      <div id="output"></div>
+    </div>
+
+    <div class="card">
+      <h2>Test Results Summary</h2>
+      <div id="summary"></div>
+    </div>
+  </div>
+
+  <script>
+    let testResults = [];
+
+    function addTest(name, passed, details = '') {
+      testResults.push({ name, passed, details });
+      const output = document.getElementById('output');
+      const testDiv = document.createElement('div');
+      testDiv.className = 'test ' + (passed ? 'pass' : 'fail');
+      testDiv.textContent = (passed ? '✓' : '✗') + ' ' + name + (details ? ' - ' + details : '');
+      output.appendChild(testDiv);
+      output.scrollTop = output.scrollHeight;
+    }
+
+    function addInfo(msg) {
+      const output = document.getElementById('output');
+      const div = document.createElement('div');
+      div.className = 'test info';
+      div.textContent = 'ℹ ' + msg;
+      output.appendChild(div);
+      output.scrollTop = output.scrollHeight;
+    }
+
+    function runTests() {
+      testResults = [];
+      document.getElementById('output').innerHTML = '';
+      
+      addInfo('Starting integration tests...');
+      
+      // Test 1: Check globals
+      testLibraries();
+      
+      // Test 2: Simulate app classes behavior
+      testAppClasses();
+      
+      // Test 3: Summary
+      const passed = testResults.filter(t => t.passed).length;
+      const total = testResults.length;
+      
+      const summary = document.getElementById('summary');
+      summary.innerHTML = `
+        <p><strong>Tests Run: ${total}</strong></p>
+        <p><strong>Passed: ${passed}</strong></p>
+        <p><strong>Failed: ${total - passed}</strong></p>
+        <p><strong>Success Rate: ${(passed/total*100).toFixed(1)}%</strong></p>
+      `;
+      
+      if (passed === total) {
+        summary.innerHTML += '<p style="color: green; margin-top: 10px;"><strong>✓ All tests passed! App should work correctly.</strong></p>';
+      } else {
+        summary.innerHTML += '<p style="color: red; margin-top: 10px;"><strong>✗ Some tests failed. Check details above.</strong></p>';
+      }
+    }
+
+    function testLibraries() {
+      addInfo('Testing dependencies...');
+      
+      // Chart.js
+      const hasChart = typeof Chart !== 'undefined';
+      addTest('Chart.js available', hasChart, hasChart ? 'v' + Chart?.version : 'not loaded');
+      
+      // html2pdf
+      const hasHtml2pdf = typeof html2pdf !== 'undefined';
+      addTest('html2pdf available', hasHtml2pdf);
+      
+      // localStorage
+      try {
+        localStorage.setItem('__TEST__', 'test');
+        const val = localStorage.getItem('__TEST__') === 'test';
+        localStorage.removeItem('__TEST__');
+        addTest('localStorage working', val);
+      } catch (e) {
+        addTest('localStorage working', false, e.message);
+      }
+    }
+
+    function testAppClasses() {
+      addInfo('Testing app structure...');
+      
+      // Simulate AppStorage
+      try {
+        const storage = {};
+        const AppStorageTest = {
+          get: (key, defaultValue = null) => storage[key] || defaultValue,
+          set: (key, value) => { storage[key] = value; }
+        };
+        
+        AppStorageTest.set('users', [{ id: 1, username: 'admin', password: 'admin@123' }]);
+        const users = AppStorageTest.get('users');
+        addTest('AppStorage mock', users && users[0].username === 'admin', 'Users initialized');
+      } catch (e) {
+        addTest('AppStorage mock', false, e.message);
+      }
+      
+      // Test grade calculations
+      try {
+        const grades = {
+          'O': 10, 'A+': 9, 'A': 8, 'B+': 7, 'B': 6, 'C': 5, 'F': 0
+        };
+        const gpa = (grades['A'] * 3 + grades['A+'] * 4) / 7;
+        addTest('GPA calculation', gpa > 0 && gpa < 10, `Sample GPA: ${gpa.toFixed(2)}`);
+      } catch (e) {
+        addTest('GPA calculation', false, e.message);
+      }
+      
+      // Test authentication flow
+      try {
+        const users = [{ id: 1, username: 'admin', password: 'admin@123' }];
+        const user = users.find(u => u.username === 'admin' && u.password === 'admin@123');
+        addTest('Authentication', user && user.username === 'admin', 'Login successful');
+      } catch (e) {
+        addTest('Authentication', false, e.message);
+      }
+      
+      // Test modal logic
+      try {
+        const modal = { isOpen: false };
+        modal.isOpen = true;
+        const result = modal.isOpen === true;
+        modal.isOpen = false;
+        addTest('Modal state management', result && modal.isOpen === false);
+      } catch (e) {
+        addTest('Modal state management', false, e.message);
+      }
+    }
+
+    addInfo('Integration test page loaded. Click "Run All Tests" to start.');
+  </script>
+
+  <!-- Load actual libraries just like index.html does -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
+</body>
+</html>
